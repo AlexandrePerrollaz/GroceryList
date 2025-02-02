@@ -4,17 +4,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 import os
 import threading
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import Qgrocery_listlication, QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl
 import sys
 
-# Initialize Flask app
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+# Initialize Flask grocery_list
+grocery_list = Flask(__name__)
+grocery_list.secret_key = 'your_secret_key'
 
 # Initialize Flask-Login
-login_manager = LoginManager(app)
+login_manager = LoginManager(grocery_list)
 login_manager.login_view = 'login'
 
 # JSON files
@@ -48,7 +48,7 @@ def load_user(username):
     return None
 
 # Flask routes for authentication
-@app.route('/register', methods=['GET', 'POST'])
+@grocery_list.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -64,7 +64,7 @@ def register():
             return redirect(url_for('login'))
     return render_template('register.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@grocery_list.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -77,7 +77,7 @@ def login():
             flash('Invalid username or password.', 'danger')
     return render_template('login.html')
 
-@app.route('/logout')
+@grocery_list.route('/logout')
 @login_required
 def logout():
     logout_user()
@@ -85,7 +85,7 @@ def logout():
     return redirect(url_for('login'))
 
 # Flask routes for grocery list
-@app.route('/', methods=['GET', 'POST'])
+@grocery_list.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     user_list = grocery_data.get(current_user.id, {})
@@ -100,7 +100,7 @@ def index():
             category = request.form.get('category')
             item_name = request.form.get('item_name')
             if category and item_name:
-                user_list[category].append({"name": item_name, "checked": False})
+                user_list[category].grocery_listend({"name": item_name, "checked": False})
         elif action == 'add_category':
             new_category = request.form.get('new_category')
             if new_category and new_category not in user_list:
@@ -114,7 +114,7 @@ def index():
 
 # Add new routes for editing
 
-@app.route('/edit_item', methods=['POST'])
+@grocery_list.route('/edit_item', methods=['POST'])
 @login_required
 def edit_item():
     category = request.form.get('category')
@@ -127,9 +127,9 @@ def edit_item():
         item = grocery_data[current_user.id][category].pop(old_index)
         item['name'] = new_name
         if new_category != category:
-            grocery_data[current_user.id].setdefault(new_category, []).append(item)
+            grocery_data[current_user.id].setdefault(new_category, []).grocery_listend(item)
         else:
-            grocery_data[current_user.id][category].append(item)
+            grocery_data[current_user.id][category].grocery_listend(item)
 
         save_json(DATA_FILE, grocery_data)
         flash('Item updated successfully!', 'success')
@@ -142,7 +142,7 @@ undo_data = {}
 # Global variable to store undo data
 undo_data = {}
 
-@app.route('/delete_item', methods=['POST'])
+@grocery_list.route('/delete_item', methods=['POST'])
 @login_required
 def delete_item():
     category = request.form.get('category')
@@ -157,7 +157,7 @@ def delete_item():
 
     return redirect(url_for('index', show_undo='true'))
 
-@app.route('/delete_category', methods=['POST'])
+@grocery_list.route('/delete_category', methods=['POST'])
 @login_required
 def delete_category():
     category = request.form.get('category')
@@ -170,13 +170,13 @@ def delete_category():
 
     return redirect(url_for('index', show_undo='true'))
 
-@app.route('/undo')
+@grocery_list.route('/undo')
 @login_required
 def undo():
     if 'item' in undo_data:
         category = undo_data['item']['category']
         item = undo_data['item']['item']
-        grocery_data[current_user.id].setdefault(category, []).append(item)
+        grocery_data[current_user.id].setdefault(category, []).grocery_listend(item)
     elif 'category' in undo_data:
         grocery_data[current_user.id].update(undo_data['category'])
 
@@ -186,7 +186,7 @@ def undo():
     return redirect(url_for('index'))
 
 
-@app.route('/edit_category', methods=['POST'])
+@grocery_list.route('/edit_category', methods=['POST'])
 @login_required
 def edit_category():
     old_name = request.form.get('old_name')
@@ -202,7 +202,7 @@ def edit_category():
 
 # PyQt5 window function
 def open_local_window():
-    app_qt = QApplication(sys.argv)
+    grocery_list_qt = Qgrocery_listlication(sys.argv)
     window = QMainWindow()
     window.setWindowTitle("Grocery Manager")
 
@@ -219,10 +219,10 @@ def open_local_window():
     window.resize(1200, 800)
     window.show()
 
-    sys.exit(app_qt.exec_())
+    sys.exit(grocery_list_qt.exec_())
 
 if __name__ == '__main__':
-    flask_thread = threading.Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 5000, 'debug': False})
+    flask_thread = threading.Thread(target=grocery_list.run, kwargs={'host': '0.0.0.0', 'port': 5000, 'debug': False})
     flask_thread.start()
     open_local_window()
 
