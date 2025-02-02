@@ -1,0 +1,29 @@
+{
+    "Fruits": [
+        {
+            "name": "Apples",
+            "checked": false
+        },
+        {
+            "name": "Bananas",
+            "checked": false
+        }
+    ],
+    "Dairy": [
+        {
+            "name": "Milk",
+            "checked": false
+        },
+        {
+            "name": "Cheese",
+            "checked": false
+        }
+    ],
+    "Bakery": [
+        {
+            "name": "Bread",
+            "checked": false
+        }
+    ],
+    "AlexKevin": {}
+}
