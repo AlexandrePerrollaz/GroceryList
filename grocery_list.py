@@ -2,22 +2,20 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
 
 # Initialize Flask app
 grocery_list = Flask(__name__)
 grocery_list.secret_key = 'your_secret_key'
 
-# Configure SQLite database
+# Configure SQLite database with a persistent location
 grocery_list.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////opt/render/project/src/data.db'
 grocery_list.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize database
+# Initialize database and migration objects
 db = SQLAlchemy(grocery_list)
-
-# Initialize Flask-Login
-login_manager = LoginManager(grocery_list)
-login_manager.login_view = 'login'
+migrate = Migrate(grocery_list, db)
 
 # Models
 class User(db.Model, UserMixin):
@@ -32,6 +30,9 @@ class GroceryItem(db.Model):
     checked = db.Column(db.Boolean, default=False)
 
 # User loader for Flask-Login
+login_manager = LoginManager(grocery_list)
+login_manager.login_view = 'login'
+
 @login_manager.user_loader
 def load_user(username):
     return User.query.get(username)
@@ -139,7 +140,5 @@ def edit_category():
     flash('Category updated successfully!', 'success')
     return redirect(url_for('index'))
 
-# Create database tables
 if __name__ == '__main__':
-    db.create_all()  # Create tables if they don't exist
     grocery_list.run(host='0.0.0.0', port=5000, debug=False)
