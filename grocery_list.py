@@ -10,7 +10,7 @@ grocery_list = Flask(__name__)
 grocery_list.secret_key = 'your_secret_key'
 
 # Configure SQLite database with a persistent location
-grocery_list.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////opt/render/project/src/data.db'
+grocery_list.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 grocery_list.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database and migration objects
