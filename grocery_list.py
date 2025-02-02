@@ -95,7 +95,7 @@ def index():
             category = request.form.get('category')
             item_name = request.form.get('item_name')
             if category and item_name:
-                user_list[category].append({"name": item_name, "checked": False})
+                user_list[category].grocery_listend({"name": item_name, "checked": False})
         elif action == 'add_category':
             new_category = request.form.get('new_category')
             if new_category and new_category not in user_list:
@@ -122,9 +122,9 @@ def edit_item():
         item = grocery_data[current_user.id][category].pop(old_index)
         item['name'] = new_name
         if new_category != category:
-            grocery_data[current_user.id].setdefault(new_category, []).append(item)
+            grocery_data[current_user.id].setdefault(new_category, []).grocery_listend(item)
         else:
-            grocery_data[current_user.id][category].append(item)
+            grocery_data[current_user.id][category].grocery_listend(item)
 
         save_json(DATA_FILE, grocery_data)
         flash('Item updated successfully!', 'success')
@@ -171,7 +171,7 @@ def undo():
     if 'item' in undo_data:
         category = undo_data['item']['category']
         item = undo_data['item']['item']
-        grocery_data[current_user.id].setdefault(category, []).append(item)
+        grocery_data[current_user.id].setdefault(category, []).grocery_listend(item)
     elif 'category' in undo_data:
         grocery_data[current_user.id].update(undo_data['category'])
 
