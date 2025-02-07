@@ -12,10 +12,10 @@
     </div>
 
     <!-- Form to add a new category -->
-    <form method="POST" action="{{ url_for('index') }}" class="input-group mb-4 shadow-sm">
-        <input type="text" name="new_category" placeholder="New Category" class="form-control p-3 rounded-start" required>
+    <form method="POST" action="{{ url_for('index') }}" class="d-flex mb-3">
+        <input type="text" name="new_category" class="form-control me-2" placeholder="Enter new category" required>
         <input type="hidden" name="action" value="add_category">
-        <button type="submit" class="btn btn-outline-primary rounded-end">Add Category</button>
+        <button type="submit" class="btn btn-primary">Add Category</button>
     </form>
 
     <!-- Responsive Categories Grid -->
@@ -24,18 +24,34 @@
         <div class="col-md-6 col-lg-4">
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top">
-                    <h5 class="mb-0 fw-bold">{{ category }}</h5>
+                    <h5 class="mb-0 fw-bold">{{ category.name }}</h5>
                     <div>
-                        <!-- Edit and Delete buttons for category -->
-                        <button class="btn btn-sm btn-light shadow-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal-{{ loop.index }}">
-                            <i class="bi bi-pencil"></i>
+                        <!-- Delete Category Button -->
+                        <button class="btn btn-sm btn-danger shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal-{{ category.id }}">
+                            <i class="bi bi-trash"></i>
                         </button>
-                        <form method="POST" action="{{ url_for('delete_category') }}" class="d-inline">
-                            <input type="hidden" name="category" value="{{ category }}">
-                            <button type="submit" class="btn btn-sm btn-danger shadow-sm">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal fade" id="deleteCategoryModal-{{ category.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content rounded-4">
+                                    <div class="modal-header bg-danger text-white rounded-top">
+                                        <h5 class="modal-title">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete the category "{{ category.name }}"?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="POST" action="{{ url_for('delete_category') }}">
+                                            <input type="hidden" name="category_id" value="{{ category.id }}">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -46,52 +62,24 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center border-0 shadow-sm mb-2 rounded-3">
                             <span class="fw-medium">{{ item.name }}</span>
                             <div>
-                                <!-- Pencil to edit item -->
-                                <button class="btn btn-sm btn-outline-secondary shadow-sm" data-bs-toggle="modal" data-bs-target="#editItemModal-{{ loop.index }}">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-
                                 <!-- Delete item -->
                                 <form method="POST" action="{{ url_for('delete_item') }}" class="d-inline">
-                                    <input type="hidden" name="category" value="{{ category }}">
-                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <input type="hidden" name="item_id" value="{{ item.id }}">
                                     <button type="submit" class="btn btn-sm btn-danger shadow-sm">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
                         </li>
-
-                        <!-- Edit Item Modal -->
-                        <div class="modal fade" id="editItemModal-{{ loop.index }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content rounded-4">
-                                    <div class="modal-header bg-primary text-white rounded-top">
-                                        <h5 class="modal-title">Edit Item</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <form method="POST" action="{{ url_for('edit_item') }}">
-                                        <div class="modal-body">
-                                            <input type="text" name="new_name" class="form-control mb-3" value="{{ item.name }}" required>
-                                            <input type="hidden" name="category" value="{{ category }}">
-                                            <input type="hidden" name="old_index" value="{{ loop.index0 }}">
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" class="btn btn-primary">Save changes</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         {% endfor %}
                     </ul>
 
                     <!-- Add New Item Form -->
-                    <form method="POST" action="{{ url_for('index') }}" class="input-group shadow-sm">
-                        <input type="hidden" name="category" value="{{ category }}">
-                        <input type="text" name="item_name" placeholder="New Item" class="form-control p-3 rounded-start" required>
-                        <button type="submit" class="btn btn-outline-primary rounded-end">Add Item</button>
+                    <form method="POST" action="{{ url_for('index') }}" class="d-flex mb-3">
+                        <input type="hidden" name="action" value="add_item">
+                        <input type="hidden" name="category_id" value="{{ category.id }}">
+                        <input type="text" name="item_name" class="form-control me-2" placeholder="Enter new item" required>
+                        <button type="submit" class="btn btn-success">Add Item</button>
                     </form>
                 </div>
             </div>
@@ -110,11 +98,9 @@
                 <div class="modal-body">
                     {% for category in grocery_data %}
                     <form method="POST" action="{{ url_for('edit_category') }}" class="mb-3">
-                        <div class="input-group shadow-sm">
-                            <input type="text" name="new_name" class="form-control rounded-start" value="{{ category }}" required>
-                            <input type="hidden" name="old_name" value="{{ category }}">
-                            <button type="submit" class="btn btn-primary rounded-end">Save</button>
-                        </div>
+                        <input type="hidden" name="old_name" value="{{ category.name }}">
+                        <input type="text" name="new_name" class="form-control mb-2" value="{{ category.name }}" required>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </form>
                     {% endfor %}
                 </div>
